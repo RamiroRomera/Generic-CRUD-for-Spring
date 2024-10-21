@@ -21,3 +21,4 @@
   -   Ante la duda consultar con el autor Ramiro :) 🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃
 </p>
 
+![Captura](https://github.com/user-attachments/assets/4ec50b42-7430-41c3-99aa-7e95f0474503)
