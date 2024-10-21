@@ -12,7 +12,7 @@ public interface GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
 
     M update(DTOPUT dtoPut, I id);
 
-    void delete(I id);
+    M delete(I id);
 
     M reactivate(I id);
 

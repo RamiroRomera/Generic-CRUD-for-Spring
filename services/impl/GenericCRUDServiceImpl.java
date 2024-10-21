@@ -57,12 +57,13 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         }
     }
 
-    public void delete(I id) {
+    public M delete(I id) {
         Optional<E> entityOptional = getRepository().findById(id);
         if (entityOptional.isPresent()) {
             E entity = entityOptional.get();
             setActiveStatus(entity, false);
-            getRepository().save(entity);
+            E deletedEntity = getRepository().save(entity);
+            return modelMapper.map(reactivatedEntity, new TypeToken<M>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
