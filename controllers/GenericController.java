@@ -24,31 +24,26 @@ public abstract class GenericController<E, I, M, DTOPOST, DTOPUT> {
 
     @GetMapping("/{id}")
     public ResponseEntity<M> getById(@PathVariable I id) {
-        M entity = getService().getById(id);
-        return ResponseEntity.ok(entity);
+        return ResponseEntity.ok(getService().getById(id));
     }
 
     @PostMapping("")
     public ResponseEntity<M> create(@RequestBody DTOPOST dtoPost) {
-        M createdEntity = getService().create(dtoPost);
-        return ResponseEntity.ok(createdEntity);
+        return ResponseEntity.ok(getService().create(dtoPost));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<M> update(@RequestBody DTOPUT dtoPut, @PathVariable I id) {
-        M updatedEntity = getService().update(dtoPut, id);
-        return ResponseEntity.ok(updatedEntity);
+        return ResponseEntity.ok(getService().update(dtoPut, id));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<M> delete(@PathVariable I id) {
-        M deletedEntity = getService().delete(id);
-        return ResponseEntity.ok(deletedEntity);
+        return ResponseEntity.ok(getService().delete(id));
     }
 
     @PatchMapping("/{id}/reactivate")
     public ResponseEntity<M> reactivate(@PathVariable I id) {
-        M reactivatedEntity = getService().reactivate(id);
-        return ResponseEntity.ok(reactivatedEntity);
+        return ResponseEntity.ok(getService().reactivate(id));
     }
 }
