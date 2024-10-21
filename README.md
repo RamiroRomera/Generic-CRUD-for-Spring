@@ -3,9 +3,6 @@
   ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ MIRAR ABAJO ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
 </h1>
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/7f7e7be1-f855-4e21-a64f-245fbbb99f9d" alt="Imagen de WhatsApp 2024-10-17 a las 19 46 13_fa4d4c5b"/>
-</p>
 
 <h3 aling="center">Este repo muestra un ejemplo aplicado del Controller y Service Genericos realizados con todas las funcionalidades de CRUD mas el borrado y reactivado logico.</h3>
 
