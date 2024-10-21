@@ -15,6 +15,14 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Generic CRUD :)
+ * @param <E> represent your entity
+ * @param <I> represent the type of ID on the entity
+ * @param <M> represent the model to return on methods
+ * @param <DTOPOST> represent the object to create an entity
+ * @param <DTOPUT> represent the object to update an entity
+ */
 @Service
 @AllArgsConstructor
 public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implements GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
@@ -22,8 +30,18 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
     @Autowired
     private ModelMapper modelMapper;
 
+    /**
+     * When you implement this class will replace this method
+     * with your repository.
+     * @return {@link JpaRepository}
+     */
     public abstract JpaRepository<E, I> getRepository();
 
+    /**
+     * This will be used to implement logical delete and
+     * reactivation of your entity.
+     * @return {@link String} representing the name of your attribute.
+     */
     public abstract String nameAttributeActive();
 
     public List<M> getAll() {
@@ -46,17 +64,15 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
 
     public M create(DTOPOST dtoPost) {
         E entityToSave = modelMapper.map(dtoPost, new TypeToken<E>(){}.getType());
-        E entityCreated = getRepository().save(entityToSave);
-        return modelMapper.map(entityCreated, new TypeToken<M>(){}.getType());
+        return modelMapper.map(getRepository().save(entityToSave), new TypeToken<M>(){}.getType());
     }
 
     public M update(DTOPUT dtoPut, I id) {
         Optional<E> optionalEntity = getRepository().findById(id);
         if (optionalEntity.isPresent()) {
             E entity = optionalEntity.get();
-            modelMapper.map(entity, dtoPut);
-            E entityUpdated = getRepository().save(entity);
-            return modelMapper.map(entityUpdated, new TypeToken<M>(){}.getType());
+            modelMapper.map(dtoPut, entity);
+            return modelMapper.map(getRepository().save(entity), new TypeToken<M>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
@@ -70,33 +86,40 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         return changeActiveStatus(id, true);
     }
 
+
+    /**
+     * This function is used for the implementation of reactivate and delete.
+     * @param id represent the id of the object to update.
+     * @param isActive represent the new state.
+     * @return {@link M} the model updated.
+     */
     private M changeActiveStatus(I id, boolean isActive) {
         Optional<E> entityOptional = getRepository().findById(id);
         if (entityOptional.isPresent()) {
             E entity = entityOptional.get();
-
             setActiveStatus(entity, isActive);
-
-            E updatedEntity = getRepository().save(entity);
-            return modelMapper.map(updatedEntity, new TypeToken<M>(){}.getType());
+            return modelMapper.map(getRepository().save(entity), new TypeToken<M>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
     }
 
+    /**
+     * Will search the attribute for logical delete and change it.
+     * @param entity represent the object that will change.
+     * @param isActive represent the new status of the object.
+     */
     private void setActiveStatus(E entity, boolean isActive) {
         Field field = ReflectionUtils.findField(entity.getClass(), nameAttributeActive());
-
         if (field != null) {
             ReflectionUtils.makeAccessible(field);
-
             if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
                 ReflectionUtils.setField(field, entity, isActive);
             } else {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Active status field is not of type Boolean.");
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, nameAttributeActive() + " field is not of type Boolean.");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity does not support active status management.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity does not have the attribute " + nameAttributeActive() + ".");
         }
     }
 }
