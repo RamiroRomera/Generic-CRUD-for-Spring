@@ -13,15 +13,13 @@ public abstract class GenericController<E, I, M, DTOPOST, DTOPUT> {
     public abstract GenericCRUDService<E, I, M, DTOPOST, DTOPUT> getService();
 
     @GetMapping("")
-    public ResponseEntity<List<M>> getAll() {
-        return ResponseEntity.ok(getService().getAll());
-    }
-
-    @GetMapping("/page")
-    public ResponseEntity<Page<M>> getAll(@RequestParam(defaultValue = "0") int page,
-                                          @RequestParam(defaultValue = "10") int size) {
-
-        return ResponseEntity.ok(getService().getAll(PageRequest.of(page, size)));
+    public ResponseEntity<?> getAll(@RequestParam(required = false) Integer page,
+                                    @RequestParam(required = false) Integer size) {
+        if (page != null && size != null) {
+            return ResponseEntity.ok(getService().getAll(PageRequest.of(page, size)));
+        } else {
+            return ResponseEntity.ok(getService().getAll());
+        }
     }
 
     @GetMapping("/{id}")

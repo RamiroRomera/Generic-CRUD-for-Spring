@@ -95,7 +95,6 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         return modelMapper.map(getRepository().save(entityToSave), modelClass);
     }
 
-
     public M update(DTOPUT dtoPut, I id) {
         Optional<E> optionalEntity = getRepository().findById(id);
         if (optionalEntity.isPresent()) {
@@ -114,7 +113,6 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
     public M reactivate(I id) {
         return changeActiveStatus(id, true);
     }
-
 
     /**
      * This function is used for the implementation of reactivate and delete.
