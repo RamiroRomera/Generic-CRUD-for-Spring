@@ -15,8 +15,4 @@ public interface GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
     M delete(I id);
 
     M reactivate(I id);
-
-    interface HasActiveStatus {
-        void setIsActive(boolean isActive);
-    }
 }
