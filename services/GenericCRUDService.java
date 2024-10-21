@@ -8,6 +8,7 @@ import java.util.List;
 public interface GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
 
     List<M> getAll();
+    
     Page<M> getAll(Pageable pageable);
 
     M getById(I id);
