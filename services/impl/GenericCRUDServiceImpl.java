@@ -8,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +24,8 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
 
     public abstract JpaRepository<E, I> getRepository();
 
+    public abstract String nameAttributeActive();
+
     public List<M> getAll() {
         List<E> entityList = getRepository().findAll();
         if (!entityList.isEmpty()) {
@@ -32,9 +36,9 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
     }
 
     public M getById(I id) {
-        Optional<E> entityOptional = getRepository().findById(id);
-        if (entityOptional.isPresent()) {
-            return modelMapper.map(entityOptional.get(), new TypeToken<List<M>>(){}.getType());
+        Optional<E> plotEntityOptional = getRepository().findById(id);
+        if (plotEntityOptional.isPresent()) {
+            return modelMapper.map(plotEntityOptional.get(), new TypeToken<List<M>>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
@@ -50,6 +54,7 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         Optional<E> optionalEntity = getRepository().findById(id);
         if (optionalEntity.isPresent()) {
             E entity = optionalEntity.get();
+            modelMapper.map(entity, dtoPut);
             E entityUpdated = getRepository().save(entity);
             return modelMapper.map(entityUpdated, new TypeToken<M>(){}.getType());
         } else {
@@ -58,38 +63,40 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
     }
 
     public M delete(I id) {
-        Optional<E> entityOptional = getRepository().findById(id);
-        if (entityOptional.isPresent()) {
-            E entity = entityOptional.get();
-            setActiveStatus(entity, false);
-            E deletedEntity = getRepository().save(entity);
-            return modelMapper.map(reactivatedEntity, new TypeToken<M>(){}.getType());
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
-        }
+        return changeActiveStatus(id, false);
     }
 
     public M reactivate(I id) {
+        return changeActiveStatus(id, true);
+    }
+
+    private M changeActiveStatus(I id, boolean isActive) {
         Optional<E> entityOptional = getRepository().findById(id);
         if (entityOptional.isPresent()) {
             E entity = entityOptional.get();
-            setActiveStatus(entity, true);
-            E reactivatedEntity = getRepository().save(entity);
-            return modelMapper.map(reactivatedEntity, new TypeToken<M>(){}.getType());
+
+            setActiveStatus(entity, isActive);
+
+            E updatedEntity = getRepository().save(entity);
+            return modelMapper.map(updatedEntity, new TypeToken<M>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
     }
 
     private void setActiveStatus(E entity, boolean isActive) {
-        if (entity instanceof HasActiveStatus) {
-            ((HasActiveStatus) entity).setIsActive(isActive);
+        Field field = ReflectionUtils.findField(entity.getClass(), nameAttributeActive());
+
+        if (field != null) {
+            ReflectionUtils.makeAccessible(field);
+
+            if (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class)) {
+                ReflectionUtils.setField(field, entity, isActive);
+            } else {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Active status field is not of type Boolean.");
+            }
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity does not support active status management.");
         }
-    }
-
-    public interface HasActiveStatus {
-        void setIsActive(boolean isActive);
     }
 }
