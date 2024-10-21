@@ -10,6 +10,7 @@
 <h1 aling="center">Este repo muestra un ejemplo de un Controller y Service Genericos con todas las funcionalidades de CRUD mas el borrado y reactivado logico.</h1>
 
 <p align="center">
+  
   - Proporciono un CRUD generico el cual te permite poner DTO tanto para POST como para PUT, tambien permite el uso de eliminaciones y reactivaciones logicas con el campo isActive en la clase.
   
   - Viene incluido paginacion para el getAll dinamicamente.
