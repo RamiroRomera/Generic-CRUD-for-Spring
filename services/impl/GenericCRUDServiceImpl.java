@@ -32,9 +32,9 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
     }
 
     public M getById(I id) {
-        Optional<E> plotEntityOptional = getRepository().findById(id);
-        if (plotEntityOptional.isPresent()) {
-            return modelMapper.map(plotEntityOptional.get(), new TypeToken<List<M>>(){}.getType());
+        Optional<E> entityOptional = getRepository().findById(id);
+        if (entityOptional.isPresent()) {
+            return modelMapper.map(entityOptional.get(), new TypeToken<List<M>>(){}.getType());
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
