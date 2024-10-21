@@ -2,6 +2,7 @@ package ar.edu.utn.frc.tup.lciii.templateSpring.services.impl;
 
 import ar.edu.utn.frc.tup.lciii.templateSpring.services.GenericCRUDService;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.Optional;
  */
 @Service
 @AllArgsConstructor
+@NoArgsConstructor
 public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implements GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
 
     @Autowired
