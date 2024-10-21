@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +28,16 @@ import java.util.Optional;
  * @param <DTOPUT> represent the object to update an entity
  */
 @Service
-@AllArgsConstructor
-@NoArgsConstructor
 public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implements GenericCRUDService<E, I, M, DTOPOST, DTOPUT> {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    /**
+     * These attributes are used for mapping on {@link ModelMapper}
+     */
+    private final Class<E> entityClass;
+    private final Class<M> modelClass;
 
     /**
      * When you implement this class will replace this method
@@ -46,6 +53,25 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
      */
     public abstract String nameAttributeActive();
 
+    /**
+     * Constructor to obtain the concrete classes for {@link ModelMapper}
+     */
+    @SuppressWarnings("unchecked")
+    public GenericCRUDServiceImpl() {
+        ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
+        this.entityClass = (Class<E>) genericSuperclass.getActualTypeArguments()[0];
+        this.modelClass = (Class<M>) genericSuperclass.getActualTypeArguments()[2];
+    }
+
+    public M getById(I id) {
+        Optional<E> plotEntityOptional = getRepository().findById(id);
+        if (plotEntityOptional.isPresent()) {
+            return modelMapper.map(plotEntityOptional.get(), modelClass);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
+        }
+    }
+
     public List<M> getAll() {
         List<E> entityList = getRepository().findAll();
         if (!entityList.isEmpty()) {
@@ -55,26 +81,27 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         }
     }
 
-    public M getById(I id) {
-        Optional<E> plotEntityOptional = getRepository().findById(id);
-        if (plotEntityOptional.isPresent()) {
-            return modelMapper.map(plotEntityOptional.get(), new TypeToken<List<M>>(){}.getType());
+    public Page<M> getAll(Pageable pageable) {
+        Page<E> pageEntity = getRepository().findAll(pageable);
+        if (!pageEntity.isEmpty()) {
+            return modelMapper.map(pageEntity, new TypeToken<Page<M>>(){}.getType());
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT, "No content retrieved.");
         }
     }
 
     public M create(DTOPOST dtoPost) {
-        E entityToSave = modelMapper.map(dtoPost, new TypeToken<E>(){}.getType());
-        return modelMapper.map(getRepository().save(entityToSave), new TypeToken<M>(){}.getType());
+        E entityToSave = modelMapper.map(dtoPost, entityClass);
+        return modelMapper.map(getRepository().save(entityToSave), modelClass);
     }
+
 
     public M update(DTOPUT dtoPut, I id) {
         Optional<E> optionalEntity = getRepository().findById(id);
         if (optionalEntity.isPresent()) {
             E entity = optionalEntity.get();
             modelMapper.map(dtoPut, entity);
-            return modelMapper.map(getRepository().save(entity), new TypeToken<M>(){}.getType());
+            return modelMapper.map(getRepository().save(entity), modelClass);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }
@@ -100,7 +127,7 @@ public abstract class GenericCRUDServiceImpl<E, I, M, DTOPOST, DTOPUT> implement
         if (entityOptional.isPresent()) {
             E entity = entityOptional.get();
             setActiveStatus(entity, isActive);
-            return modelMapper.map(getRepository().save(entity), new TypeToken<M>(){}.getType());
+            return modelMapper.map(getRepository().save(entity), modelClass);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found any object with id: " + id);
         }

@@ -1,6 +1,8 @@
 package ar.edu.utn.frc.tup.lciii.templateSpring.controllers;
 
 import ar.edu.utn.frc.tup.lciii.templateSpring.services.GenericCRUDService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,6 +15,13 @@ public abstract class GenericController<E, I, M, DTOPOST, DTOPUT> {
     @GetMapping("")
     public ResponseEntity<List<M>> getAll() {
         return ResponseEntity.ok(getService().getAll());
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<Page<M>> getAll(@RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(getService().getAll(PageRequest.of(page, size)));
     }
 
     @GetMapping("/{id}")
