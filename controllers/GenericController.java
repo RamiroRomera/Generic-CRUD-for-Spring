@@ -1,7 +1,7 @@
 package ar.edu.utn.frc.tup.lciii.templateSpring.controllers;
 
 import ar.edu.utn.frc.tup.lciii.templateSpring.services.GenericCRUDService;
-import org.springframework.data.domain.Page;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +28,15 @@ public abstract class GenericController<E, I, M, DTOPOST, DTOPUT> {
     }
 
     @PostMapping("")
-    public ResponseEntity<M> create(@RequestBody DTOPOST dtoPost) {
-        return ResponseEntity.ok(getService().create(dtoPost));
+    public ResponseEntity<M> create(@RequestBody @Valid DTOPOST dtoPost) {
+        M createdEntity = getService().create(dtoPost);
+        return ResponseEntity.ok(createdEntity);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<M> update(@RequestBody DTOPUT dtoPut, @PathVariable I id) {
-        return ResponseEntity.ok(getService().update(dtoPut, id));
+    public ResponseEntity<M> update(@RequestBody @Valid DTOPUT dtoPut, @PathVariable I id) {
+        M updatedEntity = getService().update(dtoPut, id);
+        return ResponseEntity.ok(updatedEntity);
     }
 
     @DeleteMapping("/{id}")
