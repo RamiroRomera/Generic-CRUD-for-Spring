@@ -19,4 +19,6 @@
   - Es adaptable a busquedas de isActive true, false o las dos al mismo tiempo pero se necesitarian metodos del repositorio que el usuario no esta obligado a usar.
     
   -   Ante la duda consultar con el autor Ramiro :) 🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃
+  
+  -   Ahora existen 2 versiones, una con clase abstracta (v1) y otra con interfaz con default (v2).
 </p>
