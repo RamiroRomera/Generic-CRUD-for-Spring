@@ -21,4 +21,6 @@
   -   Ante la duda consultar con el autor Ramiro :) 🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃
   
   -   Ahora existen 2 versiones, una con clase abstracta (v1) y otra con interfaz con default (v2).
+  
+  -   Esta en proceso la v3 pero se me viene complicando abstraerme del campo active en el repository.
 </p>
