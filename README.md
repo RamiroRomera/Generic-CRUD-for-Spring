@@ -20,7 +20,10 @@
     
   -   Ante la duda consultar con el autor Ramiro :) 🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃🍃
   
-  -   Ahora existen 2 versiones, una con clase abstracta (v1) y otra con interfaz con default (v2).
+  - Ahora existen 3 versiones:
+    - V1: con clase abstracta 
+    - V2: interfaz con default
+    - V3: implementación de filtros y auditoría automatica, incluyendo todo lo implementado en anteriores versiones.
   
-  -   Esta en proceso la v3 pero se me viene complicando abstraerme del campo active en el repository.
+  -   Esta en proceso la v4, contendra implementacion de auditoria generica mediante una entidad que el usuario defina. Tambien me gustaria agregar anotaciones para facilitar incluso mas el uso pero eso si es complicado encerio jajaja.
 </p>
